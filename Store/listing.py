@@ -425,7 +425,7 @@ def categories():
                 "type": "appInfos",
                 "id": info_id,
                 "relationships": {
-                    "primaryCategory": {"data": {"type": "appCategories", "id": "EDUCATION"}},
+                    "primaryCategory": {"data": {"type": "appCategories", "id": "LIFESTYLE"}},
                     "secondaryCategory": {"data": {"type": "appCategories", "id": "EDUCATION"}},
                 },
             }

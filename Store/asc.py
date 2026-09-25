@@ -55,7 +55,7 @@ def token() -> str:
     now = int(time.time())
     payload = {
         "iss": ISSUER_ID,
-        "iat": now,
+        "iat": now - 60,
         "exp": now + 20 * 60,
         "aud": "appstoreconnect-v1",
     }
