@@ -85,7 +85,7 @@ final class Router {
         switch a[i + 1] {
         case "today":
             kid = named("Leo")?.id
-            bursts = [Burst(origin: CGPoint(x: 318, y: 612), colors: [Ink.kid(1), Ink.sun, Ink.tomato, Ink.kid(3), Ink.mint], label: "+2 ★", frozen: 0.42, seed: 77)]
+            bursts = [Burst(origin: CGPoint(x: 330, y: 452), colors: [Ink.kid(1), Ink.sun, Ink.tomato, Ink.kid(3), Ink.mint], label: "+2 ★", frozen: 0.34, seed: 77)]
         case "kid":
             if let ivy = named("Ivy") { kid = ivy.id; allDone = ivy }
             bursts = [Burst(origin: CGPoint(x: 215, y: 250), colors: [Ink.kid(0), Ink.sun, Ink.tomato, Ink.kid(3), Ink.mint, Ink.kid(2)], big: true, frozen: 0.62, seed: 4242)]

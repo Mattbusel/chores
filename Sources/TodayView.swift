@@ -116,8 +116,9 @@ struct KidHero: View {
     private func heroChip(_ icon: String, _ v: String, _ unit: String?) -> some View {
         HStack(spacing: 4) {
             Image(systemName: icon).font(.system(size: 11, weight: .heavy))
-            Text(unit == nil ? v : "\(v) \(unit!)").font(.r(13, .heavy)).monospacedDigit()
+            Text(unit == nil ? v : "\(v) \(unit!)").font(.r(13, .heavy)).monospacedDigit().lineLimit(1)
         }
+        .fixedSize()
         .foregroundStyle(.white).padding(.horizontal, 9).padding(.vertical, 5)
         .background(Capsule().fill(.white.opacity(0.2)))
     }
