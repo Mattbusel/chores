@@ -134,7 +134,7 @@ def register_bundle():
                 "type": "bundleIds",
                 "attributes": {
                     "identifier": BUNDLE_ID,
-                    "name": APP_NAME.replace(" ", ""),
+                    "name": "".join(ch for ch in APP_NAME if ch.isalnum()),
                     "platform": "IOS",
                 },
             }
