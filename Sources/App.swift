@@ -5,6 +5,7 @@ import Observation
 struct ChoresApp: App {
     @State private var store: Store
     @State private var router: Router
+    @State private var pro: Pro
     init() {
         let a = ProcessInfo.processInfo.arguments
         let demo = a.contains("-shot") || a.contains("-demoAutoplay")
@@ -12,10 +13,13 @@ struct ChoresApp: App {
         let s = Store(demo: demo)
         _store = State(initialValue: s)
         _router = State(initialValue: Router(store: s))
+        // Screenshots and the review recording never touch StoreKit; `-shot paywall` shows the real, locked paywall.
+        let shot = a.firstIndex(of: "-shot").flatMap { $0 + 1 < a.count ? a[$0 + 1] : nil }
+        _pro = State(initialValue: shot == "paywall" ? Pro(forced: false) : demo ? Pro(forced: true) : Pro())
     }
     var body: some Scene {
         WindowGroup {
-            RootView().environment(store).environment(router).preferredColorScheme(.light).tint(Ink.tomato)
+            RootView().environment(store).environment(router).environment(pro).preferredColorScheme(.light).tint(Ink.tomato)
                 .onAppear { router.applyShotArgs(store); Autopilot.shared.run(store, router) }
         }
     }
@@ -35,9 +39,10 @@ enum Tab: String, CaseIterable {
 }
 
 enum Sheet: Identifiable {
-    case kids, chores, rewards, settings, ideas, money(UUID), kid(Kid), chore(Chore)
+    case kids, chores, rewards, settings, ideas, money(UUID), kid(Kid), chore(Chore), pro(Pro.Reason)
     var id: String {
         switch self {
+        case .pro(let r): return "pro-\(r.rawValue)"
         case .kids: return "kids"
         case .chores: return "chores"
         case .rewards: return "rewards"
@@ -93,6 +98,7 @@ final class Router {
         case "shop": kid = named("Maya")?.id; tab = .shop
         case "week": kid = named("Leo")?.id; tab = .week
         case "parent": grownUp = true; tab = .grown
+        case "paywall": grownUp = true; tab = .grown; sheet = .pro(.kids)
         default: break
         }
     }
@@ -101,6 +107,7 @@ final class Router {
 struct RootView: View {
     @Environment(Store.self) private var store
     @Environment(Router.self) private var router
+    @Environment(Pro.self) private var pro
     var body: some View {
         @Bindable var router = router
         ZStack(alignment: .bottom) {
@@ -122,7 +129,7 @@ struct RootView: View {
             }
             ConfettiLayer(bursts: router.bursts).zIndex(10)
         }
-        .sheet(item: $router.sheet) { s in sheetView(s).presentationBackground(Ink.bg).presentationCornerRadius(32) }
+        .sheet(item: $router.sheet) { s in sheetView(s).environment(pro).presentationBackground(Ink.bg).presentationCornerRadius(32) }
         .onAppear { if router.kid == nil { router.kid = store.kids.first?.id } }
         .onChange(of: store.kids.map(\.id)) { _, ids in if router.kid == nil || !ids.contains(router.kid!) { router.kid = ids.first } }
     }
@@ -138,6 +145,7 @@ struct RootView: View {
         case .chores: ChoresList()
         case .rewards: RewardsList()
         case .settings: SettingsSheet()
+        case .pro(let r): PaywallView(reason: r)
         case .ideas: IdeasSheet()
         case .money(let k): MoneySheet(kidID: k)
         case .kid(let k): NavigationStack { KidEditor(kid: k, isNew: !store.kids.contains { $0.id == k.id }) }

@@ -42,6 +42,9 @@ final class Autopilot {
             router.sheet = nil; await wait(1.2)
             router.sheet = .ideas; await wait(3.5)
             router.sheet = nil; await wait(1.5)
+            // The one purchase, Chores Pro, only ever offered here behind the parent PIN.
+            router.sheet = .pro(.kids); await wait(5)
+            router.sheet = nil; await wait(1.5)
             try? Data("ok".utf8).write(to: URL.documentsDirectory.appending(path: "demo_done"))
         }
     }

@@ -25,6 +25,8 @@ struct SettingsSheet: View {
     @State private var askErase = false
     @State private var time = Date()
     @State private var denied = false
+    @State private var showPro: Pro.Reason? = nil
+    @Environment(Pro.self) private var pro
     var body: some View {
         @Bindable var store = store
         NavigationStack {
@@ -85,6 +87,7 @@ struct SettingsSheet: View {
                             }
                             if denied { Text("Notifications are off for Chores. Turn them on in the Settings app.").font(.r(12, .bold)).foregroundStyle(Ink.red) }
                         }
+                        ProField(show: $showPro)
                         Field("Privacy") {
                             Text("Everything stays on this phone. No accounts, no ads, nothing sent anywhere.").font(.r(14, .semibold)).foregroundStyle(Ink.ink2)
                         }
@@ -100,6 +103,7 @@ struct SettingsSheet: View {
         .onAppear {
             time = Calendar.current.date(from: DateComponents(hour: store.settings.remindHour, minute: store.settings.remindMinute)) ?? Date()
         }
+        .paywall($showPro, pro)
         .confirmationDialog("Erase all kids, chores and money?", isPresented: $askErase, titleVisibility: .visible) {
             Button("Erase everything", role: .destructive) { store.eraseAll(); router.grownUp = true; Reminders.disable() }
         }

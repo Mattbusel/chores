@@ -66,6 +66,11 @@ jobs:
           xcrun simctl launch "$udid" com.mattbusel.chores -shot parent
           sleep 7
           xcrun simctl io "$udid" screenshot "shots/05.png"
+          xcrun simctl terminate "$udid" com.mattbusel.chores || true
+          # The paywall, for the in-app purchase review screenshot (not a store screenshot).
+          xcrun simctl launch "$udid" com.mattbusel.chores -shot paywall
+          sleep 8
+          xcrun simctl io "$udid" screenshot "shots/paywall.png"
       - uses: actions/upload-artifact@v4
         if: always()
         with:

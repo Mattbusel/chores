@@ -97,6 +97,9 @@ platform :ios do
       app_identifier: APP_IDENTIFIER,
       initial_build_number: 0
     ) + 1
+    # Build 1 was the paid 1.0; Pro.firstFreemiumBuild treats any original download
+    # below 2 as a paid buyer. Never go below it.
+    next_build = [next_build, 2].max
     UI.message("building as build number #{next_build}")
 
     build_app(
@@ -166,7 +169,9 @@ platform :ios do
       # Store Connect and nothing is submitted, so the listing can be looked at
       # before it goes to Apple.
       submit_for_review: false,
-      force: true
+      force: true,
+      # Precheck cannot read in-app purchases through an API key and fails the lane.
+      precheck_include_in_app_purchases: false
     )
   end
 end

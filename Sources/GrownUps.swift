@@ -94,15 +94,25 @@ struct Approvals: View {
 
 struct ThisWeek: View {
     @Environment(Store.self) private var store
+    @Environment(Router.self) private var router
+    @Environment(Pro.self) private var pro
     var body: some View {
         let start = Day.weekStart(Day.today)
         VStack(alignment: .leading, spacing: 12) {
             HStack {
                 Text("This week so far").font(.r(18, .black)).foregroundStyle(Ink.ink)
                 Spacer()
-                ShareLink(item: store.summaryText(start)) {
-                    Image(systemName: "square.and.arrow.up").font(.system(size: 14, weight: .heavy)).foregroundStyle(Ink.ink)
-                        .frame(width: 34, height: 34).background(Circle().fill(Ink.ink.opacity(0.06)))
+                if pro.unlocked {
+                    ShareLink(item: store.summaryText(start)) {
+                        Image(systemName: "square.and.arrow.up").font(.system(size: 14, weight: .heavy)).foregroundStyle(Ink.ink)
+                            .frame(width: 34, height: 34).background(Circle().fill(Ink.ink.opacity(0.06)))
+                    }
+                } else {
+                    Button { router.sheet = .pro(.report) } label: {
+                        Image(systemName: "square.and.arrow.up").font(.system(size: 14, weight: .heavy)).foregroundStyle(Ink.ink)
+                            .frame(width: 34, height: 34).background(Circle().fill(Ink.ink.opacity(0.06)))
+                    }
+                    .accessibilityLabel("Share the weekly report")
                 }
             }
             ForEach(store.kids) { k in

@@ -124,6 +124,8 @@ func moneyText(_ v: Double) -> String { v == 0 ? "" : String(format: "%.2f", v) 
 
 struct KidsList: View {
     @Environment(Store.self) private var store
+    @Environment(Pro.self) private var pro
+    @State private var showPro: Pro.Reason? = nil
     var body: some View {
         NavigationStack {
             VStack(spacing: 0) {
@@ -146,7 +148,9 @@ struct KidsList: View {
                             }
                             .buttonStyle(Bouncy(scale: 0.97))
                         }
-                        BigButton(title: "Add a kid", icon: "plus") { add = Kid(name: "", age: 8, emoji: Ink.emojis[store.kids.count % Ink.emojis.count], color: store.kids.count) }
+                        BigButton(title: "Add a kid", icon: pro.canAddKid(store) ? "plus" : "star.fill") {
+                            guard pro.canAddKid(store) else { showPro = .kids; return }
+                            add = Kid(name: "", age: 8, emoji: Ink.emojis[store.kids.count % Ink.emojis.count], color: store.kids.count) }
                             .padding(.top, 6)
                     }
                     .padding(18)
@@ -157,6 +161,7 @@ struct KidsList: View {
             .toolbar(.hidden, for: .navigationBar)
             .background(Ink.bg)
         }
+        .paywall($showPro, pro)
     }
     @State private var add: Kid? = nil
 }
@@ -398,6 +403,8 @@ struct ChoreEditor: View {
 
 struct RewardsList: View {
     @Environment(Store.self) private var store
+    @Environment(Pro.self) private var pro
+    @State private var showPro: Pro.Reason? = nil
     @State private var editing: Reward? = nil
     var body: some View {
         VStack(spacing: 0) {
@@ -416,13 +423,21 @@ struct RewardsList: View {
                         }
                         .buttonStyle(Bouncy(scale: 0.97))
                     }
-                    BigButton(title: "New reward", icon: "plus") { editing = Reward(name: "", emoji: "🎁", cost: 25) }.padding(.top, 6)
+                    BigButton(title: "New reward", icon: pro.unlocked ? "plus" : "star.fill") {
+                        if pro.unlocked { editing = Reward(name: "", emoji: "🎁", cost: 25) } else { showPro = .rewards }
+                    }
+                    .padding(.top, 6)
+                    if !pro.unlocked {
+                        Text("Rename these and change their star prices freely. Adding your own rewards is part of Chores Pro.")
+                            .font(.r(12, .bold)).foregroundStyle(Ink.dim).multilineTextAlignment(.center)
+                    }
                 }
                 .padding(18)
             }
         }
         .background(Ink.bg)
         .sheet(item: $editing) { r in RewardEditor(reward: r).presentationDetents([.medium, .large]).presentationBackground(Ink.bg) }
+        .paywall($showPro, pro)
     }
 }
 
